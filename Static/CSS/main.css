@@ -1,4 +1,32 @@
-* {
+body {
+    background-color: black;
+    color: rgb(255, 255, 255);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    height: 100vh;
     margin: 0;
-    padding: 0;
+}
+.container {
+    display: flex;
+    align-items: center;
+}
+.video-container {
+    margin-right: 20px;
+}
+.table-container {
+    max-height: 80vh;
+    overflow-y: auto;
+}
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+th, td {
+    border: 1px solid white;
+    padding: 8px;
+    text-align: left;
+}
+th {
+    background-color: #333;
 }

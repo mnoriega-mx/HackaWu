@@ -3,9 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Body Tracking</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
+
 <body>
-    Hello, Wd!
+    <div class="container">
+        <div class="video-container">
+            <h1>Body Tracking Video Stream</h1>
+            <img src="{{ url_for('video_feed') }}" width="1000">
+        </div>
+    </div>
 </body>
 </html>
