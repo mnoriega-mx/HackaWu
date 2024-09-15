@@ -6,59 +6,54 @@
     <title>Body Tracking</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/main.css') }}">
 </head>
-
 <body>
-    
     <div class="header-container">
         <div class="logo-container">
             <img class="logo" src="{{ url_for('static', filename='assets/sentrywulogo.png') }}" alt="SentryWu Logo">
         </div>
-    
         <div class="header">
-            <h1>Sentry<span style="color:#dc143c">Wu</span></h1>
+            <h1>Sentry<span class="highlight">Wu</span></h1>
         </div>
     </div>
-
     <div class="container">
         <div class="video-container">
             <img class="video" src="{{ url_for('video_feed') }}">
         </div>
-        
         <div class="table-container">
             <h2>Detection Logs</h2>
-            <hr class="line-below-table">
-            
-            <!-- Wrap only the table inside a scrollable div -->
-            <div class="scrollable-table">
-                <table>
+            <table>
+                <tbody id="log-table-body">
                     {% for log in logs %}
                     <tr>
                         <td>{{ log.time }}</td>
                         <td>{{ log.log }}</td>
                     </tr>
                     {% endfor %}
-                </table>
-            </div>
+                </tbody>
+            </table>
         </div>
     </div>
-
     <script>
+        // JavaScript to dynamically update the table with detection logs
         function updateLogs() {
             fetch('/logs')
                 .then(response => response.json())
                 .then(logs => {
-                    const tableBody = document.querySelector('table tbody');
-                    tableBody.innerHTML = ''; // Clear existing rows
-                    logs.forEach(log => {
-                        const row = tableBody.insertRow();
-                        const cellTime = row.insertCell(0);
-                        const cellLog = row.insertCell(1);
-                        cellTime.textContent = log.time;
-                        cellLog.textContent = log.log;
-                    });
+                    const tableBody = document.getElementById('log-table-body');
+                    if (tableBody) {
+                        tableBody.innerHTML = ''; // Clear existing rows
+                        logs.forEach(log => {
+                            const row = tableBody.insertRow();
+                            const cellTime = row.insertCell(0);
+                            const cellLog = row.insertCell(1);
+                            cellTime.textContent = log.time;
+                            cellLog.textContent = log.log;
+                        });
+                    }
                 });
         }
 
+        // Fetch logs every 2 seconds
         setInterval(updateLogs, 2000);
     </script>
 </body>
