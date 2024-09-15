@@ -12,9 +12,13 @@
         <div class="video-container">
             <img class="video" src="{{ url_for('video_feed') }}">
         </div>
-        <div class="log-container">
+        <div class="table-container">
             <h2>Detection Logs</h2>
             <table>
+                <tr>
+                    <th>Time</th>
+                    <th>Log</th>
+                </tr>
                 {% for log in logs %}
                 <tr>
                     <td>{{ log.time }}</td>
