@@ -1,4 +1,4 @@
-from flask import Flask, render_template, Response, jsonify
+from flask import Flask, render_template, Response, jsonify, request
 from flask_sqlalchemy import SQLAlchemy
 import BodyTrackingModule as btm
 import HandTrackingModule as htm
@@ -7,10 +7,20 @@ import numpy as np
 import time
 import pytz
 from datetime import datetime
+from twilio.twiml.messaging_response import MessagingResponse
+from twilio.rest import Client
 
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///logs.db'
 db = SQLAlchemy(app)
+
+# Twilio credentials
+account_sid = 'text'  # Replace with your Account SID
+auth_token = 'text'  # borrarlo cuando se haga commits
+client = Client(account_sid, auth_token)
+
+twilio_phone_number = '+number'  # Replace with your Twilio phone number
+your_phone_number = '+number'  # Replace with your personal phone number
 
 # Load YOLO model and classes
 net = cv2.dnn.readNet("yolov3_training_2000.weights", "yolov3_testing.cfg")
@@ -23,11 +33,9 @@ class Logs(db.Model):
     log = db.Column(db.String(200))
     timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
-
 # Function to save log
 last_log_time = time.time()
 log_interval = 5  # Minimum time (in seconds) between logs
-
 
 def save_log(log_message):
     global last_log_time
@@ -38,8 +46,20 @@ def save_log(log_message):
             new_log = Logs(log=log_message)
             db.session.add(new_log)
             db.session.commit()
+
+        # Send SMS alert for specific logs
+        if "Raised arms" in log_message or "Weapon" in log_message:
+            send_sms_alert(log_message)
+
         last_log_time = current_time  # Update the last log time
 
+# Function to send SMS alert via Twilio
+def send_sms_alert(log_message):
+    client.messages.create(
+        body=f"Alert: {log_message}",
+        from_=twilio_phone_number,
+        to=your_phone_number
+    )
 
 @app.route('/')
 def index():
@@ -54,14 +74,11 @@ def get_logs():
     logs_data = [{'time': log.timestamp.replace(tzinfo=pytz.utc).astimezone(local_timezone).strftime('%H:%M:%S'), 'log': log.log} for log in logs]
     return jsonify(logs_data)
 
-
-
-
 def generate_frames():
     arms_raised = False
     weapon = False
     # Open video capture (use 1 for external camera or modify as needed)
-    cap = cv2.VideoCapture(1)
+    cap = cv2.VideoCapture(0)
     
     # Initialize body detector
     body_detector = btm.poseDetector()
@@ -160,6 +177,25 @@ def generate_frames():
 def video_feed():
     return Response(generate_frames(), mimetype='multipart/x-mixed-replace; boundary=frame')
 
+# Route to handle incoming SMS and forward them to your phone
+@app.route("/sms", methods=['POST'])
+def sms_reply():
+    # Get the message the user sent
+    body = request.form['Body']
+    from_number = request.form['From']
+
+    # Forward the message to your personal phone number
+    client.messages.create(
+        body=f"Message from {from_number}: {body}",
+        from_=twilio_phone_number,
+        to=your_phone_number
+    )
+
+    # Respond to the sender
+    resp = MessagingResponse()
+    resp.message("Your message has been forwarded.")
+    return str(resp)
+
 if __name__ == "__main__":
     with app.app_context():
         db.drop_all()  # Drop all tables, including the 'logs' table
@@ -167,6 +203,3 @@ if __name__ == "__main__":
         Logs.query.delete()  # Clear all logs from the previous session
         db.session.commit()  # Commit the changes
     app.run(debug=True)
-
-
-
