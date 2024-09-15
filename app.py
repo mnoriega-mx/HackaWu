@@ -1,5 +1,5 @@
 from flask import Flask, render_template, Response, jsonify, request
-from flask_sqlalchemy import SQLAlchemy
+from pymongo import MongoClient
 import BodyTrackingModule as btm
 import HandTrackingModule as htm
 import cv2
@@ -9,30 +9,28 @@ import pytz
 from datetime import datetime
 from twilio.twiml.messaging_response import MessagingResponse
 from twilio.rest import Client
-
+from twilio.base.exceptions import TwilioRestException
 
 app = Flask(__name__)
-app.config['SQLALCHEMY_DATABASE_URI'] = 'sqlite:///logs.db'
-db = SQLAlchemy(app)
+
+# Initialize MongoDB client
+client = MongoClient('mongodb://localhost:27017/')
+db = client['your_database_name']
+logs_collection = db['logs']
 
 # Twilio credentials
-account_sid = 'text'  # Replace with your Account SID
-auth_token = 'text'  # borrarlo cuando se haga commits
+account_sid = ''  # Replace with your SID
+auth_token = ''  # Replace with your Auth Token
 client = Client(account_sid, auth_token)
 
-twilio_phone_number = '+number'  # Replace with your Twilio phone number
-your_phone_number = '+number'  # Replace with your personal phone number
+twilio_phone_number = '+'  # Replace with your Twilio phone number
+your_phone_number = '+'  # Replace with your personal phone number
 
 # Load YOLO model and classes
 net = cv2.dnn.readNet("env/yolov3_training_2000.weights", "env/yolov3_testing.cfg")
 classes = ["Weapon"]
 output_layer_names = net.getUnconnectedOutLayersNames()
 colors = np.random.uniform(0, 255, size=(len(classes), 3))
-
-class Logs(db.Model):
-    id = db.Column(db.Integer, primary_key=True)
-    log = db.Column(db.String(200))
-    timestamp = db.Column(db.DateTime, default=datetime.utcnow)
 
 # Function to save log
 last_log_time = time.time()
@@ -43,10 +41,11 @@ def save_log(log_message):
     current_time = time.time()
     
     if current_time - last_log_time >= log_interval:
-        with app.app_context():
-            new_log = Logs(log=log_message)
-            db.session.add(new_log)
-            db.session.commit()
+        log_entry = {
+            "log": log_message,
+            "timestamp": datetime.utcnow()
+        }
+        logs_collection.insert_one(log_entry)
 
         # Send SMS alert for specific logs
         if "Raised arms" in log_message or "Weapon" in log_message:
@@ -56,30 +55,33 @@ def save_log(log_message):
 
 # Function to send SMS alert via Twilio
 def send_sms_alert(log_message):
-    client.messages.create(
-        body=f"Alert: {log_message}",
-        from_=twilio_phone_number,
-        to=your_phone_number
-    )
+    try:
+        client.messages.create(
+            body=f"Alert: {log_message}",
+            from_=twilio_phone_number,
+            to=your_phone_number
+        )
+    except TwilioRestException as e:
+        print(f"Failed to send SMS alert: {e}")
 
 @app.route('/')
 def index():
     # Fetch all logs to display on the page
-    logs = Logs.query.all()
+    logs = list(logs_collection.find())
     return render_template('index.html', logs=logs)
 
 @app.route('/logs')
 def get_logs():
     local_timezone = pytz.timezone('America/Mexico_City')  # Replace with your desired time zone
-    logs = Logs.query.all()
-    logs_data = [{'time': log.timestamp.replace(tzinfo=pytz.utc).astimezone(local_timezone).strftime('%H:%M:%S'), 'log': log.log} for log in logs]
+    logs = list(logs_collection.find())
+    logs_data = [{'time': log['timestamp'].replace(tzinfo=pytz.utc).astimezone(local_timezone).strftime('%H:%M:%S'), 'log': log['log']} for log in logs]
     return jsonify(logs_data)
 
 def generate_frames():
     arms_raised = False
     weapon = False
     # Open video capture (use 1 for external camera or modify as needed)
-    cap = cv2.VideoCapture(0)
+    cap = cv2.VideoCapture(1)
     
     # Initialize body detector
     body_detector = btm.poseDetector()
@@ -186,11 +188,14 @@ def sms_reply():
     from_number = request.form['From']
 
     # Forward the message to your personal phone number
-    client.messages.create(
-        body=f"Message from {from_number}: {body}",
-        from_=twilio_phone_number,
-        to=your_phone_number
-    )
+    try:
+        client.messages.create(
+            body=f"Message from {from_number}: {body}",
+            from_=twilio_phone_number,
+            to=your_phone_number
+        )
+    except TwilioRestException as e:
+        print(f"Failed to forward SMS: {e}")
 
     # Respond to the sender
     resp = MessagingResponse()
@@ -198,9 +203,4 @@ def sms_reply():
     return str(resp)
 
 if __name__ == "__main__":
-    with app.app_context():
-        db.drop_all()  # Drop all tables, including the 'logs' table
-        db.create_all()  # Recreate the tables with the new schema
-        Logs.query.delete()  # Clear all logs from the previous session
-        db.session.commit()  # Commit the changes
     app.run(debug=True)
