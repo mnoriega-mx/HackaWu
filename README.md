@@ -43,9 +43,9 @@ Welcome to the project! Below are the necessary steps and commands to get everyt
 
 Before starting, ensure you have **pip** or **pip3** installed on your system. These are Python's package installers, and you'll need them to install all required dependencies.
 
-## 🔧 Installation Guide
+## 🔧 Installation Guide 
 
-Run the following commands in your terminal to install the necessary libraries:
+Run the following commands in your terminal inside a virtual environment to install the necessary libraries:
 
 ```bash
 pip3 install opencv-python
