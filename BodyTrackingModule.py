@@ -3,6 +3,7 @@ import mediapipe as mp
 import time
 import math
 
+
 class poseDetector():
     def __init__(self,
                static_image_mode=False, model_complexity=1, smooth_landmarks=True, enable_segmentation=False, 
