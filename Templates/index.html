@@ -12,7 +12,7 @@
             <img class="logo" src="{{ url_for('static', filename='assets/sentrywulogo.png') }}" alt="SentryWu Logo">
         </div>
         <div class="header">
-            <h1>Sentry<span class="highlight">Wu</span></h1>
+            <h1>Sentry<span style="color:#dc143c">Wu</span></h1>
         </div>
     </div>
     <div class="container">
@@ -21,16 +21,20 @@
         </div>
         <div class="table-container">
             <h2>Detection Logs</h2>
-            <table>
-                <tbody id="log-table-body">
+            
+            <hr class="line-below-table">
+
+            <!-- Wrap only the table inside a scrollable div -->
+            <div class="scrollable-table">
+                <table>
                     {% for log in logs %}
                     <tr>
                         <td>{{ log.time }}</td>
                         <td>{{ log.log }}</td>
                     </tr>
                     {% endfor %}
-                </tbody>
-            </table>
+                </table>
+            </div>
         </div>
     </div>
     <script>
