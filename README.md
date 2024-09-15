@@ -35,5 +35,16 @@ This repository contains the code and work made for Hackaton 2024 for the Tecnol
 For more details on YOLOv3 implementation and training, refer to the official [YOLOv3 documentation](https://pjreddie.com/darknet/yolo/).
 
 ---
+## Additional Information
+- pip or pip3 install ....
+- pip3 install opencv-python
+- pip3 install mediapipe
+- pip3 install flask
+- pip3 install flask_sqlalchemy
+- pip3 install pytz
+- pip3 install twilio
+- pip3 install numpy
+  
+---
 
 **Happy Hacking with HackaWu!**
