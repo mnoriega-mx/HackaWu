@@ -27,12 +27,20 @@
             <!-- Wrap only the table inside a scrollable div -->
             <div class="scrollable-table">
                 <table>
-                    {% for log in logs %}
-                    <tr>
-                        <td>{{ log.time }}</td>
-                        <td>{{ log.log }}</td>
-                    </tr>
-                    {% endfor %}
+                    <thead>
+                        <tr>
+                            <th>Time</th>
+                            <th>Log</th>
+                        </tr>
+                    </thead>
+                    <tbody id="log-table-body">
+                        {% for log in logs %}
+                        <tr>
+                            <td>{{ log.time }}</td>
+                            <td>{{ log.log }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
                 </table>
             </div>
         </div>
