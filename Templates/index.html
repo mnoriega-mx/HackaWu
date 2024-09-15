@@ -10,9 +10,45 @@
 <body>
     <div class="container">
         <div class="video-container">
-            <h1>Body Tracking Video Stream</h1>
-            <img src="{{ url_for('video_feed') }}" width="1000">
+            <img class="video" src="{{ url_for('video_feed') }}">
+        </div>
+        <div class="table-container">
+            <h2>Detection Logs</h2>
+            <table>
+                <tr>
+                    <th>Time</th>
+                    <th>Log</th>
+                </tr>
+                {% for log in logs %}
+                <tr>
+                    <td>{{ log.time }}</td>
+                    <td>{{ log.log }}</td>
+                </tr>
+                {% endfor %}
+            </table>
         </div>
     </div>
+    <script>
+        // JavaScript to dynamically update the table with detection logs
+        function updateLogs() {
+            fetch('/logs')
+                .then(response => response.json())
+                .then(logs => {
+                    const tableBody = document.querySelector('table tbody');
+                    tableBody.innerHTML = ''; // Clear existing rows
+                    logs.forEach(log => {
+                        const row = tableBody.insertRow();
+                        const cellTime = row.insertCell(0);
+                        const cellLog = row.insertCell(1);
+                        cellTime.textContent = log.time;
+                        cellLog.textContent = log.log;
+                    });
+                });
+        }
+
+        // Fetch logs every 2 seconds
+        setInterval(updateLogs, 2000);
+    </script>
 </body>
+</html>
 </html>
