@@ -1,6 +1,6 @@
 # HackaWu: YOLOv3 Training Resources
 
-This repository contains the configuration and trained weights for a YOLOv3 model, tailored for object detection tasks.
+This repository contains the code and work made for Hackaton 2024 for the Tecnologico de Monterrey challenge.
 
 ## Download Files
 
