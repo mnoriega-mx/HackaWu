@@ -24,7 +24,7 @@ twilio_phone_number = '+number'  # Replace with your Twilio phone number
 your_phone_number = '+number'  # Replace with your personal phone number
 
 # Load YOLO model and classes
-net = cv2.dnn.readNet("yolov3_training_2000.weights", "yolov3_testing.cfg")
+net = cv2.dnn.readNet("env/yolov3_training_2000.weights", "env/yolov3_testing.cfg")
 classes = ["Weapon"]
 output_layer_names = net.getUnconnectedOutLayersNames()
 colors = np.random.uniform(0, 255, size=(len(classes), 3))
