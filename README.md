@@ -35,16 +35,46 @@ This repository contains the code and work made for Hackaton 2024 for the Tecnol
 For more details on YOLOv3 implementation and training, refer to the official [YOLOv3 documentation](https://pjreddie.com/darknet/yolo/).
 
 ---
-## Additional Information
-- pip or pip3 install ....
-- pip3 install opencv-python
-- pip3 install mediapipe
-- pip3 install flask
-- pip3 install flask_sqlalchemy
-- pip3 install pytz
-- pip3 install twilio
-- pip3 install numpy
-  
+## Project Setup Instructions
+
+Welcome to the project! Below are the necessary steps and commands to get everything up and running smoothly.
+
+## 🛠️ Prerequisites
+
+Before starting, ensure you have **pip** or **pip3** installed on your system. These are Python's package installers, and you'll need them to install all required dependencies.
+
+## 🔧 Installation Guide
+
+Run the following commands in your terminal to install the necessary libraries:
+
+```bash
+pip3 install opencv-python
+pip3 install mediapipe
+pip3 install flask
+pip3 install flask_sqlalchemy
+pip3 install pytz
+pip3 install twilio
+pip3 install numpy
+pip3 install pymongo
+```
+---
+##🍏 MongoDB Setup (MacOS)
+
+Add the MongoDB tap:
+```bash
+brew tap mongodb/brew
+```
+
+Install the MongoDB Community Edition:
+```bash
+brew install mongodb-community
+```
+
+Start the MongoDB service:
+```bash
+brew services start mongodb/brew/mongodb-community
+```
+
 ---
 
 **Happy Hacking with HackaWu!**
