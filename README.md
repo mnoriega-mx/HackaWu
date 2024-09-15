@@ -58,7 +58,7 @@ pip3 install numpy
 pip3 install pymongo
 ```
 ---
-##🍏 MongoDB Setup (MacOS)
+## 🍏 MongoDB Setup (MacOS)
 
 Add the MongoDB tap:
 ```bash
